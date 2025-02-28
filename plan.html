@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Workout Plan</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background-color: #4CAF50;
+            padding: 20px 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .nav-logo {
+            font-size: 28px;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .nav-menu {
+            display: flex;
+            list-style-type: none;
+        }
+        .nav-item {
+            margin-left: 20px;
+        }
+        .nav-link {
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .nav-link:hover {
+            background-color: #45a049;
+        }
+        #plan {
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #plan h1 {
+            font-size: 36px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .question label {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .question select, .question input {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .hidden {
+            display: none;
+        }
+        #workout-plan h2 {
+            color: #4CAF50;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        #workout-output {
+            font-size: 18px;
+        }
+        .workout-item {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .workout-card {
+            width: 250px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .workout-card:hover {
+            transform: translateY(-5px);
+        }
+        .workout-card h4 {
+            font-size: 22px;
+            color: #4CAF50;
+            margin: 10px 0;
+        }
+        .workout-card p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .workout-card .reps {
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            #plan {
+                padding: 20px;
+                margin: 20px 10px;
+            }
+            #plan h1 {
+                font-size: 30px;
+            }
+            .workout-card {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <a href="#" class="nav-logo">VTrain</a>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="menu.html" class="nav-link">About</a></li>
+                <li class="nav-item"><a href="#plan" class="nav-link">Plan-Workout</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <section id="plan">
+        <h1>Generate Your Workout Plan</h1>
+        <form id="questionnaire-form">
+            <div class="question">
+                <label for="goal">What is your fitness goal?</label>
+                <select id="goal" required>
+                    <option value="weight_loss">Weight Loss</option>
+                    <option value="muscle_gain">Muscle Gain</option>
+                    <option value="strength">Strength Improvement</option>
+                    <option value="general_health">General Health</option>
+                </select>
+            </div>
+            <div class="question">
+                <label for="experience">What is your fitness level?</label>
+                <select id="experience" required>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                </select>
+            </div>
+            <div class="question">
+                <label for="available_equipment">Do you have gym equipment?</label>
+                <select id="available_equipment" required>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+            <div class="question">
+                <label for="days_per_week">How many days per week can you train?</label>
+                <input type="number" id="days_per_week" min="1" max="7" required>
+            </div>
+            <div class="question">
+                <label for="body_focus">Which areas would you like to focus on?</label>
+                <select id="body_focus" required>
+                    <option value="full_body">Full Body</option>
+                    <option value="upper_body">Upper Body</option>
+                    <option value="lower_body">Lower Body</option>
+                    <option value="core">Core</option>
+                </select>
+            </div>
+            <div class="question">
+                <label for="height">What is your height (in cm)?</label>
+                <input type="number" id="height" required>
+            </div>
+            <div class="question">
+                <label for="weight">What is your weight (in kg)?</label>
+                <input type="number" id="weight" required>
+            </div>
+            <div class="question">
+                <label for="bmi_goal">What is your BMI goal?</label>
+                <select id="bmi_goal" required>
+                    <option value="lose_fat">Lose Fat</option>
+                    <option value="gain_muscle">Gain Muscle</option>
+                    <option value="maintain">Maintain Weight</option>
+                </select>
+            </div>
+            <button type="submit">Generate Workout Plan</button>
+        </form>
+        <div id="workout-plan" class="hidden">
+            <h2>Your 7-Day Workout Plan</h2>
+            <div id="workout-output"></div>
+            <button id="download-pdf" class="hidden">Download PDF</button>
+        </div>
+    </section>
+    <script>
+        document.getElementById("questionnaire-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const goal = document.getElementById("goal").value;
+            const experience = document.getElementById("experience").value;
+            const equipment = document.getElementById("available_equipment").value;
+            const daysPerWeek = document.getElementById("days_per_week").value;
+            const bodyFocus = document.getElementById("body_focus").value;
+            const height = document.getElementById("height").value;
+            const weight = document.getElementById("weight").value;
+            const bmiGoal = document.getElementById("bmi_goal").value;
+            const bmi = calculateBMI(height, weight);
+            const bmiCategory = getBMICategory(bmi);
+            let workoutPlan = `<p>Your BMI is <strong>${bmi}</strong>, which is classified as <strong>${bmiCategory}</strong>.</p>`;
+            workoutPlan += `<p>Your fitness goal is <strong>${goal}</strong> and your body focus is <strong>${bodyFocus}</strong>.</p>`;
+            workoutPlan += `<h4>Workout Plan for the Next ${daysPerWeek} Days:</h4>`;
+            workoutPlan += `<div class="workout-item">`;
+            const exercises = {
+                full_body: ["Push-ups", "Squats", "Lunges", "Planks", "Burpees", "Jumping Jacks"],
+                upper_body: ["Push-ups", "Pull-ups", "Shoulder Press", "Bicep Curls", "Triceps Dips", "Chest Press"],
+                lower_body: ["Squats", "Lunges", "Leg Press", "Calf Raises", "Glute Bridges"],
+                core: ["Planks", "Russian Twists", "Mountain Climbers", "Bicycle Crunches"]
+            };
+            for (let day = 1; day <= daysPerWeek; day++) {
+                const dayExercises = exercises[bodyFocus] || exercises["full_body"];
+                const randomExercises = [];
+                while (randomExercises.length < 2) {
+                    const randomExercise = dayExercises[Math.floor(Math.random() * dayExercises.length)];
+                    if (!randomExercises.includes(randomExercise)) {
+                        randomExercises.push(randomExercise);
+                    }
+                }
+                workoutPlan += `
+                    <div class="workout-card">
+                        <h4>Day ${day}</h4>
+                        <p><strong>Exercise 1:</strong> ${randomExercises[0]}</p>
+                        <p class="reps">3 Sets of 12-15 reps</p>
+                        <p><strong>Exercise 2:</strong> ${randomExercises[1]}</p>
+                        <p class="reps">3 Sets of 12-15 reps</p>
+                    </div>`;
+            }
+            workoutPlan += `</div>`;
+            document.getElementById("workout-output").innerHTML = workoutPlan;
+            document.getElementById("workout-plan").classList.remove("hidden");
+            document.getElementById("download-pdf").classList.remove("hidden");
+            document.getElementById("download-pdf").addEventListener("click", function() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.text("Your Workout Plan", 20, 20);
+                doc.text(workoutPlan.replace(/<\/?[^>]+(>|$)/g, ""), 20, 40);
+                doc.save("workout-plan.pdf");
+            });
+        });
+        function calculateBMI(height, weight) {
+            height = height / 100;
+            return (weight / (height * height)).toFixed(2);
+        }
+        function getBMICategory(bmi) {
+            if (bmi < 18.5) return "Underweight";
+            if (bmi >= 18.5 && bmi < 24.9) return "Normal weight";
+            if (bmi >= 25 && bmi < 29.9) return "Overweight";
+            return "Obesity";
+        }
+    </script>
+</body>
+</html>
